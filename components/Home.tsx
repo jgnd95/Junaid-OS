@@ -1,24 +1,48 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { Target, CheckSquare } from "lucide-react";
 import type { AppData, Category, Goal, Item, SectionKey } from "../types";
 import { SECTION_META } from "../lib/constants";
 import { generateId } from "../lib/utils";
 import { loadData, saveData } from "../lib/storage";
+import { supabase } from "../lib/supabase";
 import { GoalsTabContent } from "./goals/GoalsTabContent";
 import { TasksTabContent } from "./tasks/TasksTabContent";
 import { TabBar } from "./TabBar";
 
 export default function Home() {
+  const router = useRouter();
   const [data, setData] = useState<AppData>({ goals: [], goalCategories: [], tasks: [] });
   const [activeTab, setActiveTab] = useState<SectionKey>("goals");
   const [mounted, setMounted] = useState(false);
+  const [userName, setUserName] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setData(loadData());
     setMounted(true);
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) setUserName(user.user_metadata?.full_name || user.email || "");
+    });
   }, []);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    if (menuOpen) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [menuOpen]);
+
+  async function handleSignOut() {
+    await supabase.auth.signOut();
+    router.push("/login");
+  }
 
   useEffect(() => {
     if (mounted) saveData(data);
@@ -144,11 +168,71 @@ export default function Home() {
                 </h1>
               </div>
             </div>
-            {mounted && activeCounts[activeTab] > 0 && (
-              <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.22)", fontVariantNumeric: "tabular-nums", paddingBottom: "3px" }}>
-                {activeCounts[activeTab]} remaining
-              </p>
-            )}
+            <div style={{ display: "flex", alignItems: "flex-end", gap: 14 }}>
+              {mounted && activeCounts[activeTab] > 0 && (
+                <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.22)", fontVariantNumeric: "tabular-nums", paddingBottom: "3px" }}>
+                  {activeCounts[activeTab]} remaining
+                </p>
+              )}
+              {mounted && (
+                <div ref={menuRef} style={{ position: "relative" }}>
+                  <button
+                    onClick={() => setMenuOpen((v) => !v)}
+                    style={{
+                      width: 34,
+                      height: 34,
+                      borderRadius: "50%",
+                      background: "rgba(255,255,255,0.1)",
+                      border: "1px solid rgba(255,255,255,0.12)",
+                      color: "rgba(255,255,255,0.75)",
+                      fontSize: 14,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    {userName.charAt(0) || "?"}
+                  </button>
+                  {menuOpen && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: 42,
+                        right: 0,
+                        background: "#1a1a1a",
+                        border: "1px solid rgba(255,255,255,0.1)",
+                        borderRadius: 10,
+                        padding: 4,
+                        minWidth: 140,
+                        zIndex: 50,
+                      }}
+                    >
+                      <button
+                        onClick={handleSignOut}
+                        style={{
+                          width: "100%",
+                          padding: "10px 14px",
+                          fontSize: 14,
+                          color: "rgba(255,255,255,0.75)",
+                          background: "transparent",
+                          border: "none",
+                          borderRadius: 8,
+                          cursor: "pointer",
+                          textAlign: "left",
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.06)")}
+                        onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                      >
+                        Sign out
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

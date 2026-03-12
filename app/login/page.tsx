@@ -139,6 +139,7 @@ export default function LoginPage() {
         {/* Social buttons */}
         <div style={{ display: "flex", gap: 12 }}>
           <button
+            onClick={() => supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${window.location.origin}/` } })}
             style={{
               flex: 1,
               display: "flex",
@@ -165,6 +166,7 @@ export default function LoginPage() {
           </button>
 
           <button
+            onClick={() => supabase.auth.signInWithOAuth({ provider: "apple", options: { redirectTo: `${window.location.origin}/` } })}
             style={{
               flex: 1,
               display: "flex",
