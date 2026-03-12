@@ -21,6 +21,7 @@ import {
   arrayMove,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { Target, CheckSquare } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -71,31 +72,6 @@ const SECTION_META: Record<SectionKey, { label: string; placeholder: string; emp
     emptyText: "Nothing to do. Enjoy the calm.",
   },
 };
-
-// ─── Tab Icons ────────────────────────────────────────────────────────────────
-
-function GoalsIcon({ active }: { active: boolean }) {
-  const c = active ? "rgba(255,255,255,0.92)" : "rgba(255,255,255,0.3)";
-  return (
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-      <circle cx="11" cy="11" r="9" stroke={c} strokeWidth="1.6" />
-      <circle cx="11" cy="11" r="5.5" stroke={c} strokeWidth="1.6" />
-      <circle cx="11" cy="11" r="2" fill={c} />
-    </svg>
-  );
-}
-
-function TasksIcon({ active }: { active: boolean }) {
-  const c = active ? "rgba(255,255,255,0.92)" : "rgba(255,255,255,0.3)";
-  return (
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-      <rect x="2" y="4" width="18" height="2.2" rx="1.1" fill={c} opacity={active ? "0.92" : "0.3"} />
-      <rect x="2" y="9.9" width="18" height="2.2" rx="1.1" fill={c} opacity={active ? "0.92" : "0.3"} />
-      <rect x="2" y="15.8" width="12" height="2.2" rx="1.1" fill={c} opacity={active ? "0.92" : "0.3"} />
-      <path d="M16.5 13.5L18.5 15.5L21.5 12" stroke={c} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -1310,8 +1286,8 @@ function TabBar({
               transition: "opacity 0.15s",
             }}
           >
-            {tab === "goals" && <GoalsIcon active={isActive} />}
-            {tab === "tasks" && <TasksIcon active={isActive} />}
+            {tab === "goals" && <Target size={22} color={isActive ? "rgba(255,255,255,0.92)" : "rgba(255,255,255,0.3)"} />}
+            {tab === "tasks" && <CheckSquare size={22} color={isActive ? "rgba(255,255,255,0.92)" : "rgba(255,255,255,0.3)"} />}
             <span
               style={{
                 fontSize: "10px",
@@ -1479,8 +1455,8 @@ export default function Home() {
               </p>
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                 <div style={{ opacity: 0.75 }}>
-                  {activeTab === "goals" && <GoalsIcon active={true} />}
-                  {activeTab === "tasks" && <TasksIcon active={true} />}
+                  {activeTab === "goals" && <Target size={22} color="rgba(255,255,255,0.92)" />}
+                  {activeTab === "tasks" && <CheckSquare size={22} color="rgba(255,255,255,0.92)" />}
                 </div>
                 <h1 style={{ fontSize: "28px", fontWeight: 700, color: "rgba(255,255,255,0.92)", letterSpacing: "-0.6px", lineHeight: 1 }}>
                   {headerLabel}
