@@ -24,12 +24,26 @@ export default function Home() {
     if (mounted) saveData(data);
   }, [data, mounted]);
 
-  // ── Goals ──
-  function handleAddGoal(title: string, categoryId: string | null) {
-    const goal: Goal = { id: generateId(), title, createdAt: new Date().toISOString(), completed: false, categoryId };
-    setData((prev) => ({ ...prev, goals: [goal, ...prev.goals] }));
+  // ── Unified add ──
+  function handleAdd(
+    section: SectionKey | "goalCategories",
+    title: string,
+    opts?: { categoryId?: string | null; recurring?: boolean },
+  ) {
+    const now = new Date().toISOString();
+    if (section === "goals") {
+      const goal: Goal = { id: generateId(), title, createdAt: now, completed: false, categoryId: opts?.categoryId ?? null };
+      setData((prev) => ({ ...prev, goals: [goal, ...prev.goals] }));
+    } else if (section === "goalCategories") {
+      const cat: Category = { id: generateId(), name: title, createdAt: now };
+      setData((prev) => ({ ...prev, goalCategories: [...prev.goalCategories, cat] }));
+    } else {
+      const item: Item = { id: generateId(), title, createdAt: now, completed: false, recurring: opts?.recurring ?? false };
+      setData((prev) => ({ ...prev, [section]: [item, ...(prev[section] as Item[])] }));
+    }
   }
 
+  // ── Goals ──
   function handleToggleGoal(id: string) {
     setData((prev) => ({
       ...prev,
@@ -39,11 +53,6 @@ export default function Home() {
 
   function handleDeleteGoal(id: string) {
     setData((prev) => ({ ...prev, goals: prev.goals.filter((g) => g.id !== id) }));
-  }
-
-  function handleAddCategory(name: string) {
-    const cat: Category = { id: generateId(), name, createdAt: new Date().toISOString() };
-    setData((prev) => ({ ...prev, goalCategories: [...prev.goalCategories, cat] }));
   }
 
   function handleDeleteCategory(id: string) {
@@ -70,13 +79,6 @@ export default function Home() {
       ...prev,
       goals: prev.goals.map((g) => (g.id === goalId ? { ...g, categoryId } : g)),
     }));
-  }
-
-  // ── Tasks / Habits ──
-  function handleAdd(key: SectionKey, title: string, recurring = false) {
-    if (key === "goals") return;
-    const item: Item = { id: generateId(), title, createdAt: new Date().toISOString(), completed: false, recurring };
-    setData((prev) => ({ ...prev, [key]: [item, ...(prev[key] as Item[])] }));
   }
 
   function handleToggle(key: SectionKey, id: string) {
@@ -156,10 +158,10 @@ export default function Home() {
             <GoalsTabContent
               goals={data.goals}
               categories={data.goalCategories}
-              onAddGoal={handleAddGoal}
+              onAddGoal={(title, catId) => handleAdd("goals", title, { categoryId: catId })}
               onToggleGoal={handleToggleGoal}
               onDeleteGoal={handleDeleteGoal}
-              onAddCategory={handleAddCategory}
+              onAddCategory={(name) => handleAdd("goalCategories", name)}
               onDeleteCategory={handleDeleteCategory}
               onRenameCategory={handleRenameCategory}
               onReorderCategories={handleReorderCategories}
@@ -171,7 +173,7 @@ export default function Home() {
               key={activeTab}
               sectionKey={activeTab}
               items={data[activeTab] as Item[]}
-              onAdd={handleAdd}
+              onAdd={(key, title, recurring) => handleAdd(key, title, { recurring })}
               onToggle={handleToggle}
               onDelete={handleDelete}
             />
