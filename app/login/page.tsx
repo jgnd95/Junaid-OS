@@ -1,6 +1,29 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "../../lib/supabase";
+
 export default function LoginPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function handleSignIn(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      setError(error.message);
+      setLoading(false);
+    } else {
+      router.push("/");
+    }
+  }
+
   return (
     <div
       style={{
@@ -35,10 +58,13 @@ export default function LoginPage() {
         </div>
 
         {/* Form */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <form onSubmit={handleSignIn} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <input
             type="email"
             placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
             style={{
               width: "100%",
               padding: "14px 16px",
@@ -54,6 +80,9 @@ export default function LoginPage() {
           <input
             type="password"
             placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
             style={{
               width: "100%",
               padding: "14px 16px",
@@ -67,23 +96,29 @@ export default function LoginPage() {
             }}
           />
 
+          {error && (
+            <p style={{ fontSize: 13, color: "#ef4444", margin: 0 }}>{error}</p>
+          )}
+
           <button
+            type="submit"
+            disabled={loading}
             style={{
               width: "100%",
               padding: "14px",
               fontSize: 15,
               fontWeight: 600,
-              background: "rgba(255,255,255,0.92)",
+              background: loading ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.92)",
               color: "#0a0a0a",
               border: "none",
               borderRadius: 12,
-              cursor: "pointer",
+              cursor: loading ? "not-allowed" : "pointer",
               marginTop: 4,
             }}
           >
-            Sign in
+            {loading ? "Signing in..." : "Sign in"}
           </button>
-        </div>
+        </form>
 
         {/* Divider */}
         <div
@@ -163,15 +198,17 @@ export default function LoginPage() {
           }}
         >
           Don&apos;t have an account?{" "}
-          <span
+          <a
+            href="/sign-up"
             style={{
               color: "rgba(255,255,255,0.75)",
               fontWeight: 500,
               cursor: "pointer",
+              textDecoration: "none",
             }}
           >
             Create account
-          </span>
+          </a>
         </p>
       </div>
     </div>
