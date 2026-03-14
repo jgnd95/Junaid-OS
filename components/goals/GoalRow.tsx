@@ -8,11 +8,13 @@ import { formatDate } from "../../lib/utils";
 export function GoalRow({
   goal,
   categoryName,
+  taskStats,
   onToggle,
   onDelete,
 }: {
   goal: Goal;
   categoryName: string | null;
+  taskStats?: { total: number; completed: number } | null;
   onToggle: () => void;
   onDelete: () => void;
 }) {
@@ -100,6 +102,38 @@ export function GoalRow({
               {categoryName}
             </span>
           )}
+          {taskStats !== undefined && (() => {
+            const allTasksDone = !!(taskStats && taskStats.total > 0 && taskStats.completed === taskStats.total);
+            return (
+              <span
+                style={{
+                  fontSize: "10px",
+                  fontWeight: 500,
+                  color: goal.completed
+                    ? "rgba(255,255,255,0.15)"
+                    : allTasksDone
+                      ? "rgba(100,210,130,0.85)"
+                      : "rgba(255,255,255,0.3)",
+                  background: goal.completed
+                    ? "rgba(255,255,255,0.04)"
+                    : allTasksDone
+                      ? "rgba(100,210,130,0.1)"
+                      : "rgba(255,255,255,0.06)",
+                  border: allTasksDone && !goal.completed
+                    ? "1px solid rgba(100,210,130,0.2)"
+                    : "1px solid rgba(255,255,255,0.06)",
+                  borderRadius: "4px",
+                  padding: "1px 5px",
+                  letterSpacing: "0.02em",
+                  transition: "all 0.15s",
+                }}
+              >
+                {taskStats && taskStats.total > 0
+                  ? `${taskStats.completed} of ${taskStats.total} completed`
+                  : "No tasks"}
+              </span>
+            );
+          })()}
         </div>
       </div>
 

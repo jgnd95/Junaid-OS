@@ -12,7 +12,7 @@ import {
   type DragEndEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
-import type { Goal, Category } from "../../types";
+import type { Goal, Category, Item } from "../../types";
 import { UNCAT_KEY } from "../../lib/constants";
 import { GoalRow } from "./GoalRow";
 import { CategoryHeader } from "./category/CategoryHeader";
@@ -26,6 +26,7 @@ function GoalDropZone({ id, children }: { id: string; children: (isOver: boolean
 
 export function GoalsTabContent({
   goals,
+  tasks,
   categories,
   onAddGoal,
   onToggleGoal,
@@ -37,6 +38,7 @@ export function GoalsTabContent({
   onReassignGoal,
 }: {
   goals: Goal[];
+  tasks: Item[];
   categories: Category[];
   onAddGoal: (title: string, categoryId: string | null) => void;
   onToggleGoal: (id: string) => void;
@@ -102,6 +104,16 @@ export function GoalsTabContent({
     ...categories.map((cat) => ({ key: cat.id, label: cat.name, catId: cat.id as string | null, dim: false })),
     { key: UNCAT_KEY, label: "Uncategorized", catId: null as string | null, dim: true },
   ];
+
+  // Build task stats per goal: { total, completed }
+  const taskStatsByGoal = new Map<string, { total: number; completed: number }>();
+  for (const task of tasks) {
+    if (!task.goalId) continue;
+    const stats = taskStatsByGoal.get(task.goalId) ?? { total: 0, completed: 0 };
+    stats.total++;
+    if (task.completed) stats.completed++;
+    taskStatsByGoal.set(task.goalId, stats);
+  }
 
   const draggedGoal = dragGoalId ? goals.find((g) => g.id === dragGoalId) : null;
 
@@ -280,6 +292,7 @@ export function GoalsTabContent({
                     key={goal.id}
                     goal={goal}
                     categoryName={null}
+                    taskStats={taskStatsByGoal.get(goal.id) ?? null}
                     onToggle={() => onToggleGoal(goal.id)}
                     onDelete={() => onDeleteGoal(goal.id)}
                   />
@@ -323,6 +336,7 @@ export function GoalsTabContent({
                           key={goal.id}
                           goal={goal}
                           categoryName={null}
+                          taskStats={taskStatsByGoal.get(goal.id) ?? null}
                           onToggle={() => onToggleGoal(goal.id)}
                           onDelete={() => onDeleteGoal(goal.id)}
                         />
@@ -343,6 +357,7 @@ export function GoalsTabContent({
                   key={goal.id}
                   goal={goal}
                   categoryName={goal.categoryId ? categoryMap.get(goal.categoryId)?.name ?? null : null}
+                  taskStats={taskStatsByGoal.get(goal.id) ?? null}
                   onToggle={() => onToggleGoal(goal.id)}
                   onDelete={() => onDeleteGoal(goal.id)}
                 />

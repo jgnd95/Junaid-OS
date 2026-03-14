@@ -245,6 +245,7 @@ export default function Home() {
           {mounted && activeTab === "goals" && (
             <GoalsTabContent
               goals={data.goals}
+              tasks={data.tasks}
               categories={data.goalCategories}
               onAddGoal={(title, catId) => handleAdd("goals", title, { categoryId: catId })}
               onToggleGoal={handleToggleGoal}
