@@ -178,11 +178,6 @@ export default function Home() {
               </div>
             </div>
             <div style={{ display: "flex", alignItems: "flex-end", gap: 14 }}>
-              {mounted && activeCounts[activeTab] > 0 && (
-                <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.22)", fontVariantNumeric: "tabular-nums", paddingBottom: "3px" }}>
-                  {activeCounts[activeTab]} remaining
-                </p>
-              )}
               {mounted && (
                 <div ref={menuRef} style={{ position: "relative" }}>
                   <button

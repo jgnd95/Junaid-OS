@@ -161,6 +161,26 @@ export function GoalRow({
                 </span>
               );
             })()}
+            {(() => {
+              const activeCount = linkedTasks ? linkedTasks.filter((t) => t.active).length : 0;
+              return activeCount > 0 ? (
+                <span
+                  style={{
+                    fontSize: "10px",
+                    fontWeight: 500,
+                    color: "rgba(240,200,80,0.9)",
+                    background: "rgba(240,200,80,0.1)",
+                    border: "1px solid rgba(240,200,80,0.2)",
+                    borderRadius: "4px",
+                    padding: "1px 5px",
+                    letterSpacing: "0.02em",
+                    transition: "all 0.15s",
+                  }}
+                >
+                  {activeCount} active
+                </span>
+              ) : null;
+            })()}
           </div>
         </div>
 
