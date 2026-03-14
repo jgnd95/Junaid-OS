@@ -257,6 +257,7 @@ export default function Home() {
               onReassignGoal={handleReassignGoal}
               onToggleTask={(id) => handleToggle("tasks", id)}
               onDeleteTask={(id) => handleDelete("tasks", id)}
+              onAddTask={(goalId, title) => handleAdd("tasks", title, { goalId })}
             />
           )}
           {mounted && activeTab !== "goals" && (

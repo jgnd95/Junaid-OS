@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useDraggable } from "@dnd-kit/core";
 import type { Goal, Item } from "../../types";
 import { formatDate } from "../../lib/utils";
@@ -15,6 +15,7 @@ export function GoalRow({
   onDelete,
   onToggleTask,
   onDeleteTask,
+  onAddTask,
 }: {
   goal: Goal;
   categoryName: string | null;
@@ -24,10 +25,38 @@ export function GoalRow({
   onDelete: () => void;
   onToggleTask?: (id: string) => void;
   onDeleteTask?: (id: string) => void;
+  onAddTask?: (title: string) => void;
 }) {
   const [hovered, setHovered] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [addingTask, setAddingTask] = useState(false);
+  const [taskInput, setTaskInput] = useState("");
+  const menuRef = useRef<HTMLDivElement>(null);
+  const addInputRef = useRef<HTMLInputElement>(null);
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: goal.id });
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    if (menuOpen) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [menuOpen]);
+
+  useEffect(() => {
+    if (addingTask) addInputRef.current?.focus();
+  }, [addingTask]);
+
+  function handleAddTask() {
+    const trimmed = taskInput.trim();
+    if (!trimmed || !onAddTask) return;
+    onAddTask(trimmed);
+    setTaskInput("");
+    setAddingTask(false);
+  }
 
   const hasTasks = linkedTasks && linkedTasks.length > 0;
 
@@ -183,30 +212,101 @@ export function GoalRow({
           </button>
         )}
 
-        {/* Delete */}
-        <button
-          onClick={onDelete}
-          aria-label="Delete goal"
-          style={{
-            flexShrink: 0,
-            width: "28px",
-            height: "28px",
-            borderRadius: "8px",
-            border: "none",
-            background: hovered ? "rgba(255,60,60,0.14)" : "transparent",
-            color: hovered ? "rgba(255,90,90,0.75)" : "transparent",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-            transition: "all 0.15s",
-            padding: 0,
-          }}
-        >
-          <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
-            <path d="M1 1L10 10M10 1L1 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
-        </button>
+        {/* Actions menu */}
+        <div ref={menuRef} style={{ position: "relative", flexShrink: 0 }}>
+          <button
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-label="Goal actions"
+            style={{
+              width: "28px",
+              height: "28px",
+              borderRadius: "8px",
+              border: "none",
+              background: menuOpen ? "rgba(255,255,255,0.1)" : hovered ? "rgba(255,255,255,0.06)" : "transparent",
+              color: menuOpen ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.25)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              transition: "all 0.15s",
+              padding: 0,
+            }}
+          >
+            <svg width="14" height="4" viewBox="0 0 14 4" fill="none">
+              <circle cx="2" cy="2" r="1.5" fill="currentColor" />
+              <circle cx="7" cy="2" r="1.5" fill="currentColor" />
+              <circle cx="12" cy="2" r="1.5" fill="currentColor" />
+            </svg>
+          </button>
+
+          {menuOpen && (
+            <div
+              style={{
+                position: "absolute",
+                top: 32,
+                right: 0,
+                background: "#1a1a1a",
+                border: "1px solid rgba(255,255,255,0.1)",
+                borderRadius: "10px",
+                padding: "4px",
+                minWidth: "140px",
+                zIndex: 50,
+                boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
+              }}
+            >
+              {onAddTask && (
+                <button
+                  onClick={() => { setMenuOpen(false); setAddingTask(true); }}
+                  style={{
+                    width: "100%",
+                    padding: "9px 12px",
+                    fontSize: "13px",
+                    color: "rgba(255,255,255,0.75)",
+                    background: "transparent",
+                    border: "none",
+                    borderRadius: "7px",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.06)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                >
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+                    <path d="M8 2V14M2 8H14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  </svg>
+                  Add task
+                </button>
+              )}
+              <button
+                onClick={() => { setMenuOpen(false); onDelete(); }}
+                style={{
+                  width: "100%",
+                  padding: "9px 12px",
+                  fontSize: "13px",
+                  color: "rgba(255,90,90,0.8)",
+                  background: "transparent",
+                  border: "none",
+                  borderRadius: "7px",
+                  cursor: "pointer",
+                  textAlign: "left",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,60,60,0.08)")}
+                onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+              >
+                <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+                  <path d="M1 1L10 10M10 1L1 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+                Delete goal
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Expanded task list */}
@@ -215,7 +315,7 @@ export function GoalRow({
           style={{
             paddingLeft: "34px",
             background: "rgba(255,255,255,0.015)",
-            borderBottom: "1px solid rgba(255,255,255,0.04)",
+            borderBottom: addingTask ? "none" : "1px solid rgba(255,255,255,0.04)",
           }}
         >
           {linkedTasks.map((task) => (
@@ -226,6 +326,92 @@ export function GoalRow({
               onDelete={() => onDeleteTask(task.id)}
             />
           ))}
+        </div>
+      )}
+
+      {/* Add task sheet */}
+      {addingTask && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            padding: "10px 20px 10px 34px",
+            background: "rgba(255,255,255,0.025)",
+            borderBottom: "1px solid rgba(255,255,255,0.06)",
+          }}
+        >
+          <input
+            ref={addInputRef}
+            value={taskInput}
+            onChange={(e) => setTaskInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleAddTask();
+              if (e.key === "Escape") { setAddingTask(false); setTaskInput(""); }
+            }}
+            placeholder="New task…"
+            style={{
+              flex: 1,
+              background: "rgba(255,255,255,0.06)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              borderRadius: "8px",
+              padding: "8px 12px",
+              fontSize: "14px",
+              color: "rgba(255,255,255,0.85)",
+              outline: "none",
+              fontFamily: "inherit",
+            }}
+          />
+          <button
+            onClick={handleAddTask}
+            style={{
+              flexShrink: 0,
+              background: "rgba(255,255,255,0.1)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              borderRadius: "8px",
+              width: "34px",
+              height: "34px",
+              padding: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "rgba(255,255,255,0.7)",
+              cursor: "pointer",
+              transition: "all 0.15s",
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.16)";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.1)";
+            }}
+          >
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+              <path d="M8 2V14M2 8H14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          </button>
+          <button
+            onClick={() => { setAddingTask(false); setTaskInput(""); }}
+            style={{
+              flexShrink: 0,
+              background: "transparent",
+              border: "none",
+              borderRadius: "8px",
+              width: "34px",
+              height: "34px",
+              padding: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "rgba(255,255,255,0.3)",
+              cursor: "pointer",
+              transition: "all 0.15s",
+            }}
+          >
+            <svg width="10" height="10" viewBox="0 0 11 11" fill="none">
+              <path d="M1 1L10 10M10 1L1 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+          </button>
         </div>
       )}
     </div>

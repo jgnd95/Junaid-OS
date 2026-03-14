@@ -38,6 +38,7 @@ export function GoalsTabContent({
   onReassignGoal,
   onToggleTask,
   onDeleteTask,
+  onAddTask,
 }: {
   goals: Goal[];
   tasks: Item[];
@@ -52,6 +53,7 @@ export function GoalsTabContent({
   onReassignGoal: (goalId: string, categoryId: string | null) => void;
   onToggleTask: (id: string) => void;
   onDeleteTask: (id: string) => void;
+  onAddTask: (goalId: string, title: string) => void;
 }) {
   const [titleInput, setTitleInput] = useState("");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
@@ -146,7 +148,7 @@ export function GoalsTabContent({
             value={titleInput}
             onChange={(e) => setTitleInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-            placeholder="Add a new goal…"
+            placeholder="Add or search a goal…"
             style={{
               flex: 1,
               background: "rgba(255,255,255,0.06)",
@@ -306,6 +308,7 @@ export function GoalsTabContent({
                     onDelete={() => onDeleteGoal(goal.id)}
                     onToggleTask={onToggleTask}
                     onDeleteTask={onDeleteTask}
+                    onAddTask={(title) => onAddTask(goal.id, title)}
                   />
                 ))
               );
@@ -353,6 +356,7 @@ export function GoalsTabContent({
                           onDelete={() => onDeleteGoal(goal.id)}
                           onToggleTask={onToggleTask}
                           onDeleteTask={onDeleteTask}
+                          onAddTask={(title) => onAddTask(goal.id, title)}
                         />
                       ))
                     )}
@@ -377,6 +381,7 @@ export function GoalsTabContent({
                   onDelete={() => onDeleteGoal(goal.id)}
                   onToggleTask={onToggleTask}
                   onDeleteTask={onDeleteTask}
+                  onAddTask={(title) => onAddTask(goal.id, title)}
                 />
               ))}
             </div>
