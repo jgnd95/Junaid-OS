@@ -23,10 +23,10 @@ export type Goal = {
   categoryId: string | null;
 };
 
-export type SectionKey = "goals" | "tasks";
+export type SectionKey = "goals" | "planning";
 
 export type AppData = {
   goals: Goal[];
   goalCategories: Category[];
-  tasks: Item[];
+  planning: Item[];
 };

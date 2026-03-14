@@ -2,19 +2,19 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Target, CheckSquare } from "lucide-react";
+import { Target, LayoutList } from "lucide-react";
 import type { AppData, Category, Goal, Item, SectionKey } from "../types";
 import { SECTION_META } from "../lib/constants";
 import { generateId } from "../lib/utils";
 import { loadData, saveData } from "../lib/storage";
 import { supabase } from "../lib/supabase";
 import { GoalsTabContent } from "./goals/GoalsTabContent";
-import { TasksTabContent } from "./tasks/TasksTabContent";
+import { PlanningTabContent } from "./planning/PlanningTabContent";
 import { TabBar } from "./TabBar";
 
 export default function Home() {
   const router = useRouter();
-  const [data, setData] = useState<AppData>({ goals: [], goalCategories: [], tasks: [] });
+  const [data, setData] = useState<AppData>({ goals: [], goalCategories: [], planning: [] });
   const [activeTab, setActiveTab] = useState<SectionKey>("goals");
   const [mounted, setMounted] = useState(false);
   const [userName, setUserName] = useState("");
@@ -63,7 +63,7 @@ export default function Home() {
       setData((prev) => ({ ...prev, goalCategories: [...prev.goalCategories, cat] }));
     } else {
       const item: Item = { id: generateId(), title, createdAt: now, completed: false, recurring: opts?.recurring ?? false, goalId: opts?.goalId ?? null };
-      setData((prev) => ({ ...prev, [section]: [item, ...(prev[section] as Item[])] }));
+      setData((prev) => ({ ...prev, planning: [item, ...prev.planning] }));
     }
   }
 
@@ -109,29 +109,27 @@ export default function Home() {
     }));
   }
 
-  function handleToggle(key: SectionKey, id: string) {
-    if (key === "goals") return;
+  function handleToggleTask(id: string) {
     setData((prev) => ({
       ...prev,
-      [key]: (prev[key] as Item[]).map((item) => (item.id === id ? { ...item, completed: !item.completed } : item)),
+      planning: prev.planning.map((item) => (item.id === id ? { ...item, completed: !item.completed } : item)),
     }));
   }
 
-  function handleDelete(key: SectionKey, id: string) {
-    if (key === "goals") return;
-    setData((prev) => ({ ...prev, [key]: (prev[key] as Item[]).filter((item) => item.id !== id) }));
+  function handleDeleteTask(id: string) {
+    setData((prev) => ({ ...prev, planning: prev.planning.filter((item) => item.id !== id) }));
   }
 
   function handleToggleActive(id: string) {
     setData((prev) => ({
       ...prev,
-      tasks: prev.tasks.map((item) => (item.id === id ? { ...item, active: !item.active } : item)),
+      planning: prev.planning.map((item) => (item.id === id ? { ...item, active: !item.active } : item)),
     }));
   }
 
   const activeCounts: Record<SectionKey, number> = {
     goals: data.goals.filter((i) => !i.completed).length,
-    tasks: data.tasks.filter((i) => !i.completed).length,
+    planning: data.planning.filter((i) => !i.completed).length,
   };
 
   const headerLabel = activeTab === "goals" ? "Goals" : SECTION_META[activeTab].label;
@@ -172,7 +170,7 @@ export default function Home() {
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                 <div style={{ opacity: 0.75 }}>
                   {activeTab === "goals" && <Target size={22} color="rgba(255,255,255,0.92)" />}
-                  {activeTab === "tasks" && <CheckSquare size={22} color="rgba(255,255,255,0.92)" />}
+                  {activeTab === "planning" && <LayoutList size={22} color="rgba(255,255,255,0.92)" />}
                 </div>
                 <h1 style={{ fontSize: "28px", fontWeight: 700, color: "rgba(255,255,255,0.92)", letterSpacing: "-0.6px", lineHeight: 1 }}>
                   {headerLabel}
@@ -252,7 +250,7 @@ export default function Home() {
           {mounted && activeTab === "goals" && (
             <GoalsTabContent
               goals={data.goals}
-              tasks={data.tasks}
+              tasks={data.planning}
               categories={data.goalCategories}
               onAddGoal={(title, catId) => handleAdd("goals", title, { categoryId: catId })}
               onToggleGoal={handleToggleGoal}
@@ -262,22 +260,14 @@ export default function Home() {
               onRenameCategory={handleRenameCategory}
               onReorderCategories={handleReorderCategories}
               onReassignGoal={handleReassignGoal}
-              onToggleTask={(id) => handleToggle("tasks", id)}
-              onDeleteTask={(id) => handleDelete("tasks", id)}
-              onAddTask={(goalId, title) => handleAdd("tasks", title, { goalId })}
+              onToggleTask={handleToggleTask}
+              onDeleteTask={handleDeleteTask}
+              onAddTask={(goalId, title) => handleAdd("planning", title, { goalId })}
               onToggleActiveTask={handleToggleActive}
             />
           )}
-          {mounted && activeTab !== "goals" && (
-            <TasksTabContent
-              key={activeTab}
-              sectionKey={activeTab}
-              items={data[activeTab] as Item[]}
-              goals={data.goals.filter((g) => !g.completed)}
-              onAdd={(key, title, recurring, goalId) => handleAdd(key, title, { recurring, goalId })}
-              onToggle={handleToggle}
-              onDelete={handleDelete}
-            />
+          {mounted && activeTab === "planning" && (
+            <PlanningTabContent />
           )}
         </div>
 

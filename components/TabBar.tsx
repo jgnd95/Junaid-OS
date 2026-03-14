@@ -1,6 +1,6 @@
 "use client";
 
-import { Target, CheckSquare } from "lucide-react";
+import { Target, LayoutList } from "lucide-react";
 import type { SectionKey } from "../types";
 import { TABS, SECTION_META } from "../lib/constants";
 
@@ -49,7 +49,7 @@ export function TabBar({
             }}
           >
             {tab === "goals" && <Target size={22} color={isActive ? "rgba(255,255,255,0.92)" : "rgba(255,255,255,0.3)"} />}
-            {tab === "tasks" && <CheckSquare size={22} color={isActive ? "rgba(255,255,255,0.92)" : "rgba(255,255,255,0.3)"} />}
+            {tab === "planning" && <LayoutList size={22} color={isActive ? "rgba(255,255,255,0.92)" : "rgba(255,255,255,0.3)"} />}
             <span
               style={{
                 fontSize: "10px",
