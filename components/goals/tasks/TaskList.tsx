@@ -9,6 +9,7 @@ export function TaskList({
   onToggleTask,
   onDeleteTask,
   onToggleActiveTask,
+  onToggleRecurringTask,
   onAddTask,
   addingTask,
   setAddingTask,
@@ -17,6 +18,7 @@ export function TaskList({
   onToggleTask: (id: string) => void;
   onDeleteTask: (id: string) => void;
   onToggleActiveTask?: (id: string) => void;
+  onToggleRecurringTask?: (id: string) => void;
   onAddTask?: (title: string) => void;
   addingTask: boolean;
   setAddingTask: (v: boolean) => void;
@@ -53,6 +55,7 @@ export function TaskList({
             onToggle={() => onToggleTask(task.id)}
             onDelete={() => onDeleteTask(task.id)}
             onToggleActive={onToggleActiveTask ? () => onToggleActiveTask(task.id) : undefined}
+            onToggleRecurring={onToggleRecurringTask ? () => onToggleRecurringTask(task.id) : undefined}
           />
         ))}
       </div>

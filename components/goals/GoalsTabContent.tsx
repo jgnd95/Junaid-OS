@@ -36,6 +36,7 @@ export function GoalsTabContent({
   onDeleteTask,
   onAddTask,
   onToggleActiveTask,
+  onToggleRecurringTask,
 }: {
   goals: Goal[];
   tasks: Item[];
@@ -52,6 +53,7 @@ export function GoalsTabContent({
   onDeleteTask: (id: string) => void;
   onAddTask: (goalId: string, title: string) => void;
   onToggleActiveTask: (id: string) => void;
+  onToggleRecurringTask: (id: string) => void;
 }) {
   const [titleInput, setTitleInput] = useState("");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
@@ -168,6 +170,7 @@ export function GoalsTabContent({
                     onDeleteTask={onDeleteTask}
                     onAddTask={(title) => onAddTask(goal.id, title)}
                     onToggleActiveTask={onToggleActiveTask}
+                    onToggleRecurringTask={onToggleRecurringTask}
                   />
                 ))
               );
@@ -223,6 +226,7 @@ export function GoalsTabContent({
                           onDeleteTask={onDeleteTask}
                           onAddTask={(title) => onAddTask(goal.id, title)}
                           onToggleActiveTask={onToggleActiveTask}
+                          onToggleRecurringTask={onToggleRecurringTask}
                         />
                       ))
                     )}
@@ -248,6 +252,7 @@ export function GoalsTabContent({
                   onDeleteTask={onDeleteTask}
                   onAddTask={(title) => onAddTask(goal.id, title)}
                   onToggleActiveTask={onToggleActiveTask}
+                  onToggleRecurringTask={onToggleRecurringTask}
                 />
               ))}
             </div>

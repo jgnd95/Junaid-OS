@@ -110,10 +110,26 @@ export default function Home() {
   }
 
   function handleToggleTask(id: string) {
-    setData((prev) => ({
-      ...prev,
-      planning: prev.planning.map((item) => (item.id === id ? { ...item, completed: !item.completed } : item)),
-    }));
+    setData((prev) => {
+      const task = prev.planning.find((item) => item.id === id);
+      if (!task) return prev;
+      const toggled = { ...task, completed: !task.completed };
+      const updated = prev.planning.map((item) => (item.id === id ? toggled : item));
+      // If completing a recurring task, create a new copy
+      if (!task.completed && task.recurring) {
+        const copy: Item = {
+          id: generateId(),
+          title: task.title,
+          createdAt: new Date().toISOString(),
+          completed: false,
+          recurring: task.recurring,
+          goalId: task.goalId,
+          active: task.active,
+        };
+        return { ...prev, planning: [copy, ...updated] };
+      }
+      return { ...prev, planning: updated };
+    });
   }
 
   function handleDeleteTask(id: string) {
@@ -124,6 +140,13 @@ export default function Home() {
     setData((prev) => ({
       ...prev,
       planning: prev.planning.map((item) => (item.id === id ? { ...item, active: !item.active } : item)),
+    }));
+  }
+
+  function handleToggleRecurring(id: string) {
+    setData((prev) => ({
+      ...prev,
+      planning: prev.planning.map((item) => (item.id === id ? { ...item, recurring: !item.recurring } : item)),
     }));
   }
 
@@ -259,6 +282,7 @@ export default function Home() {
               onDeleteTask={handleDeleteTask}
               onAddTask={(goalId, title) => handleAdd("planning", title, { goalId })}
               onToggleActiveTask={handleToggleActive}
+              onToggleRecurringTask={handleToggleRecurring}
             />
           )}
           {mounted && activeTab === "planning" && (
