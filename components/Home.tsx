@@ -52,7 +52,7 @@ export default function Home() {
   function handleAdd(
     section: SectionKey | "goalCategories",
     title: string,
-    opts?: { categoryId?: string | null; recurring?: boolean },
+    opts?: { categoryId?: string | null; recurring?: boolean; goalId?: string | null },
   ) {
     const now = new Date().toISOString();
     if (section === "goals") {
@@ -62,7 +62,7 @@ export default function Home() {
       const cat: Category = { id: generateId(), name: title, createdAt: now };
       setData((prev) => ({ ...prev, goalCategories: [...prev.goalCategories, cat] }));
     } else {
-      const item: Item = { id: generateId(), title, createdAt: now, completed: false, recurring: opts?.recurring ?? false };
+      const item: Item = { id: generateId(), title, createdAt: now, completed: false, recurring: opts?.recurring ?? false, goalId: opts?.goalId ?? null };
       setData((prev) => ({ ...prev, [section]: [item, ...(prev[section] as Item[])] }));
     }
   }
@@ -71,7 +71,11 @@ export default function Home() {
   function handleToggleGoal(id: string) {
     setData((prev) => ({
       ...prev,
-      goals: prev.goals.map((g) => (g.id === id ? { ...g, completed: !g.completed } : g)),
+      goals: prev.goals.map((g) =>
+        g.id === id
+          ? { ...g, completed: !g.completed, completedAt: g.completed ? undefined : new Date().toISOString() }
+          : g,
+      ),
     }));
   }
 
@@ -257,7 +261,8 @@ export default function Home() {
               key={activeTab}
               sectionKey={activeTab}
               items={data[activeTab] as Item[]}
-              onAdd={(key, title, recurring) => handleAdd(key, title, { recurring })}
+              goals={data.goals.filter((g) => !g.completed)}
+              onAdd={(key, title, recurring, goalId) => handleAdd(key, title, { recurring, goalId })}
               onToggle={handleToggle}
               onDelete={handleDelete}
             />

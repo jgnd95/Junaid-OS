@@ -82,14 +82,20 @@ export function GoalsTabContent({
   // Build grouped list: one group per category (in order), then uncategorized
   const categoryMap = new Map(categories.map((c) => [c.id, c]));
 
-  // Group goals by categoryId
+  // Group only active goals by categoryId
   const grouped: Map<string | null, Goal[]> = new Map();
   for (const cat of categories) grouped.set(cat.id, []);
   grouped.set(null, []);
   for (const goal of goals) {
+    if (goal.completed) continue;
     const key = goal.categoryId && categoryMap.has(goal.categoryId) ? goal.categoryId : null;
     grouped.get(key)!.push(goal);
   }
+
+  // All completed goals, sorted by most recently completed
+  const allDone = goals
+    .filter((g) => g.completed)
+    .sort((a, b) => (b.completedAt ?? b.createdAt).localeCompare(a.completedAt ?? a.createdAt));
 
   // Build flat sections list: named categories + uncategorized always last
   const sections = [
@@ -281,10 +287,9 @@ export function GoalsTabContent({
               );
             })()
           ) : (
-          sections.map(({ key, label, catId, dim }) => {
+          <>
+          {sections.map(({ key, label, catId, dim }) => {
             const catGoals = grouped.get(catId) ?? [];
-            const active = catGoals.filter((g) => !g.completed);
-            const done = catGoals.filter((g) => g.completed);
             // Only show "Uncategorized" header when there are named categories
             const showHeader = catId !== null || categories.length > 0;
 
@@ -313,33 +318,38 @@ export function GoalsTabContent({
                         {isOver && dragGoalId ? "Drop here" : "No goals yet"}
                       </p>
                     ) : (
-                      <>
-                        {active.map((goal) => (
-                          <GoalRow
-                            key={goal.id}
-                            goal={goal}
-                            categoryName={null}
-                            onToggle={() => onToggleGoal(goal.id)}
-                            onDelete={() => onDeleteGoal(goal.id)}
-                          />
-                        ))}
-                        {done.length > 0 && active.length > 0 && <CompletedDivider count={done.length} />}
-                        {done.map((goal) => (
-                          <GoalRow
-                            key={goal.id}
-                            goal={goal}
-                            categoryName={null}
-                            onToggle={() => onToggleGoal(goal.id)}
-                            onDelete={() => onDeleteGoal(goal.id)}
-                          />
-                        ))}
-                      </>
+                      catGoals.map((goal) => (
+                        <GoalRow
+                          key={goal.id}
+                          goal={goal}
+                          categoryName={null}
+                          onToggle={() => onToggleGoal(goal.id)}
+                          onDelete={() => onDeleteGoal(goal.id)}
+                        />
+                      ))
                     )}
                   </div>
                 )}
               </GoalDropZone>
             );
-          })
+          })}
+
+          {/* Single Done section at the bottom */}
+          {allDone.length > 0 && (
+            <div style={{ margin: "2px 8px" }}>
+              <CompletedDivider count={allDone.length} />
+              {allDone.map((goal) => (
+                <GoalRow
+                  key={goal.id}
+                  goal={goal}
+                  categoryName={goal.categoryId ? categoryMap.get(goal.categoryId)?.name ?? null : null}
+                  onToggle={() => onToggleGoal(goal.id)}
+                  onDelete={() => onDeleteGoal(goal.id)}
+                />
+              ))}
+            </div>
+          )}
+          </>
           )}
         </div>
 
