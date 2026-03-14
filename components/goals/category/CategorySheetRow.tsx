@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { Category } from "../../../types";
+import { ConfirmDialog } from "../../shared/ConfirmDialog";
 
 export function CategorySheetRow({
   category,
@@ -15,6 +16,7 @@ export function CategorySheetRow({
   onRename: (newName: string) => void;
 }) {
   const [hovered, setHovered] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [editValue, setEditValue] = useState(category.name);
   const inputRef = useRef<HTMLInputElement>(null);
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: category.id });
@@ -86,7 +88,7 @@ export function CategorySheetRow({
         }}
       />
       <button
-        onClick={onDelete}
+        onClick={() => setConfirmDelete(true)}
         aria-label={`Delete ${category.name}`}
         style={{
           flexShrink: 0,
@@ -108,6 +110,13 @@ export function CategorySheetRow({
           <path d="M1 1L10 10M10 1L1 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
         </svg>
       </button>
+      {confirmDelete && (
+        <ConfirmDialog
+          message={`Delete "${category.name}"?`}
+          onConfirm={() => { setConfirmDelete(false); onDelete(); }}
+          onCancel={() => setConfirmDelete(false)}
+        />
+      )}
     </div>
   );
 }

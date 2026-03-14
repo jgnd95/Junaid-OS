@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Item } from "../../types";
 import { formatDate } from "../../lib/utils";
+import { ConfirmDialog } from "../shared/ConfirmDialog";
 
 export function TaskItem({
   item,
@@ -16,7 +17,9 @@ export function TaskItem({
   onToggleActive?: () => void;
 }) {
   const [hovered, setHovered] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   return (
+    <>
     <div
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -139,7 +142,7 @@ export function TaskItem({
       )}
 
       <button
-        onClick={onDelete}
+        onClick={() => setConfirmDelete(true)}
         aria-label="Delete item"
         style={{
           flexShrink: 0,
@@ -162,5 +165,13 @@ export function TaskItem({
         </svg>
       </button>
     </div>
+    {confirmDelete && (
+      <ConfirmDialog
+        message={`Delete "${item.title}"?`}
+        onConfirm={() => { setConfirmDelete(false); onDelete(); }}
+        onCancel={() => setConfirmDelete(false)}
+      />
+    )}
+    </>
   );
 }

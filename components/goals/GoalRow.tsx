@@ -5,6 +5,7 @@ import { useDraggable } from "@dnd-kit/core";
 import type { Goal, Item } from "../../types";
 import { formatDate } from "../../lib/utils";
 import { TaskList } from "./tasks/TaskList";
+import { ConfirmDialog } from "../shared/ConfirmDialog";
 
 export function GoalRow({
   goal,
@@ -33,6 +34,7 @@ export function GoalRow({
   const [expanded, setExpanded] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [addingTask, setAddingTask] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: goal.id });
 
@@ -289,7 +291,7 @@ export function GoalRow({
                 </button>
               )}
               <button
-                onClick={() => { setMenuOpen(false); onDelete(); }}
+                onClick={() => { setMenuOpen(false); setConfirmDelete(true); }}
                 style={{
                   width: "100%",
                   padding: "9px 12px",
@@ -340,6 +342,14 @@ export function GoalRow({
           onAddTask={onAddTask}
           addingTask={addingTask}
           setAddingTask={setAddingTask}
+        />
+      )}
+
+      {confirmDelete && (
+        <ConfirmDialog
+          message={`Delete "${goal.title}"?`}
+          onConfirm={() => { setConfirmDelete(false); onDelete(); }}
+          onCancel={() => setConfirmDelete(false)}
         />
       )}
     </div>
