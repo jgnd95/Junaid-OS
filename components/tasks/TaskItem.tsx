@@ -8,10 +8,12 @@ export function TaskItem({
   item,
   onToggle,
   onDelete,
+  onToggleActive,
 }: {
   item: Item;
   onToggle: () => void;
   onDelete: () => void;
+  onToggleActive?: () => void;
 }) {
   const [hovered, setHovered] = useState(false);
   return (
@@ -87,10 +89,54 @@ export function TaskItem({
         >
           {item.title}
         </p>
-        <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.18)", marginTop: "3px", fontVariantNumeric: "tabular-nums" }}>
-          {formatDate(item.createdAt)}
-        </p>
+        <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "3px" }}>
+          <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.18)", fontVariantNumeric: "tabular-nums" }}>
+            {formatDate(item.createdAt)}
+          </p>
+          {item.active && (
+            <span
+              style={{
+                fontSize: "10px",
+                fontWeight: 500,
+                color: "rgba(240,200,80,0.9)",
+                background: "rgba(240,200,80,0.1)",
+                border: "1px solid rgba(240,200,80,0.2)",
+                borderRadius: "4px",
+                padding: "1px 5px",
+                letterSpacing: "0.02em",
+              }}
+            >
+              Working on it
+            </span>
+          )}
+        </div>
       </div>
+
+      {onToggleActive && (
+        <button
+          onClick={onToggleActive}
+          aria-label={item.active ? "Deactivate task" : "Activate task"}
+          style={{
+            flexShrink: 0,
+            width: "28px",
+            height: "28px",
+            borderRadius: "8px",
+            border: "none",
+            background: item.active ? "rgba(240,200,80,0.12)" : hovered ? "rgba(255,255,255,0.06)" : "transparent",
+            color: item.active ? "rgba(240,200,80,0.9)" : hovered ? "rgba(255,255,255,0.3)" : "transparent",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            transition: "all 0.15s",
+            padding: 0,
+          }}
+        >
+          <svg width="12" height="14" viewBox="0 0 12 16" fill="none">
+            <path d="M7 1L1 9h5l-1 6 6-8H6l1-6z" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" fill={item.active ? "rgba(240,200,80,0.3)" : "none"} />
+          </svg>
+        </button>
+      )}
 
       <button
         onClick={onDelete}

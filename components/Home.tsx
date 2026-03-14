@@ -122,6 +122,13 @@ export default function Home() {
     setData((prev) => ({ ...prev, [key]: (prev[key] as Item[]).filter((item) => item.id !== id) }));
   }
 
+  function handleToggleActive(id: string) {
+    setData((prev) => ({
+      ...prev,
+      tasks: prev.tasks.map((item) => (item.id === id ? { ...item, active: !item.active } : item)),
+    }));
+  }
+
   const activeCounts: Record<SectionKey, number> = {
     goals: data.goals.filter((i) => !i.completed).length,
     tasks: data.tasks.filter((i) => !i.completed).length,
@@ -258,6 +265,7 @@ export default function Home() {
               onToggleTask={(id) => handleToggle("tasks", id)}
               onDeleteTask={(id) => handleDelete("tasks", id)}
               onAddTask={(goalId, title) => handleAdd("tasks", title, { goalId })}
+              onToggleActiveTask={handleToggleActive}
             />
           )}
           {mounted && activeTab !== "goals" && (

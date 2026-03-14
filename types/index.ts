@@ -5,6 +5,7 @@ export type Item = {
   completed: boolean;
   recurring: boolean;
   goalId?: string | null;
+  active?: boolean;
 };
 
 export type Category = {

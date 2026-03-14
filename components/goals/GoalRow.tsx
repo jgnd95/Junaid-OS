@@ -16,6 +16,7 @@ export function GoalRow({
   onToggleTask,
   onDeleteTask,
   onAddTask,
+  onToggleActiveTask,
 }: {
   goal: Goal;
   categoryName: string | null;
@@ -26,6 +27,7 @@ export function GoalRow({
   onToggleTask?: (id: string) => void;
   onDeleteTask?: (id: string) => void;
   onAddTask?: (title: string) => void;
+  onToggleActiveTask?: (id: string) => void;
 }) {
   const [hovered, setHovered] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -324,6 +326,7 @@ export function GoalRow({
               item={task}
               onToggle={() => onToggleTask(task.id)}
               onDelete={() => onDeleteTask(task.id)}
+              onToggleActive={onToggleActiveTask ? () => onToggleActiveTask(task.id) : undefined}
             />
           ))}
         </div>

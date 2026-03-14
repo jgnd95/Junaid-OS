@@ -39,6 +39,7 @@ export function GoalsTabContent({
   onToggleTask,
   onDeleteTask,
   onAddTask,
+  onToggleActiveTask,
 }: {
   goals: Goal[];
   tasks: Item[];
@@ -54,6 +55,7 @@ export function GoalsTabContent({
   onToggleTask: (id: string) => void;
   onDeleteTask: (id: string) => void;
   onAddTask: (goalId: string, title: string) => void;
+  onToggleActiveTask: (id: string) => void;
 }) {
   const [titleInput, setTitleInput] = useState("");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
@@ -309,6 +311,7 @@ export function GoalsTabContent({
                     onToggleTask={onToggleTask}
                     onDeleteTask={onDeleteTask}
                     onAddTask={(title) => onAddTask(goal.id, title)}
+                    onToggleActiveTask={onToggleActiveTask}
                   />
                 ))
               );
@@ -357,6 +360,7 @@ export function GoalsTabContent({
                           onToggleTask={onToggleTask}
                           onDeleteTask={onDeleteTask}
                           onAddTask={(title) => onAddTask(goal.id, title)}
+                          onToggleActiveTask={onToggleActiveTask}
                         />
                       ))
                     )}
@@ -382,6 +386,7 @@ export function GoalsTabContent({
                   onToggleTask={onToggleTask}
                   onDeleteTask={onDeleteTask}
                   onAddTask={(title) => onAddTask(goal.id, title)}
+                  onToggleActiveTask={onToggleActiveTask}
                 />
               ))}
             </div>
