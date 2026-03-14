@@ -1,4 +1,4 @@
-export type Item = {
+export type Task = {
   id: string;
   title: string;
   createdAt: string;
@@ -28,5 +28,5 @@ export type SectionKey = "goals" | "planning";
 export type AppData = {
   goals: Goal[];
   goalCategories: Category[];
-  planning: Item[];
+  planning: Task[];
 };

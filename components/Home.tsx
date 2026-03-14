@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Target, LayoutList } from "lucide-react";
-import type { AppData, Category, Goal, Item, SectionKey } from "../types";
+import type { AppData, Category, Goal, Task, SectionKey } from "../types";
 import { SECTION_META } from "../lib/constants";
 import { generateId } from "../lib/utils";
 import { loadData, saveData } from "../lib/storage";
@@ -62,7 +62,7 @@ export default function Home() {
       const cat: Category = { id: generateId(), name: title, createdAt: now };
       setData((prev) => ({ ...prev, goalCategories: [...prev.goalCategories, cat] }));
     } else {
-      const item: Item = { id: generateId(), title, createdAt: now, completed: false, recurring: opts?.recurring ?? false, goalId: opts?.goalId ?? null };
+      const item: Task = { id: generateId(), title, createdAt: now, completed: false, recurring: opts?.recurring ?? false, goalId: opts?.goalId ?? null };
       setData((prev) => ({ ...prev, planning: [item, ...prev.planning] }));
     }
   }
@@ -117,7 +117,7 @@ export default function Home() {
       const updated = prev.planning.map((item) => (item.id === id ? toggled : item));
       // If completing a recurring task, create a new copy
       if (!task.completed && task.recurring) {
-        const copy: Item = {
+        const copy: Task = {
           id: generateId(),
           title: task.title,
           createdAt: new Date().toISOString(),

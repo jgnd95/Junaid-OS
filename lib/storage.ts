@@ -1,4 +1,4 @@
-import type { AppData, Goal, Item } from "../types";
+import type { AppData, Goal, Task } from "../types";
 import { STORAGE_KEY } from "./constants";
 
 export function loadData(): AppData {
@@ -15,7 +15,7 @@ export function loadData(): AppData {
         })),
         goalCategories: parsed.goalCategories ?? [],
         // Migrate from old "tasks" key if present
-        planning: (parsed.planning ?? parsed.tasks ?? []).map((t: Item) => ({
+        planning: (parsed.planning ?? parsed.tasks ?? []).map((t: Task) => ({
           ...t,
           recurring: t.recurring !== undefined ? t.recurring : false,
         })),

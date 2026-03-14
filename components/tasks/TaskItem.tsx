@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { Item } from "../../types";
+import type { Task } from "../../types";
 import { formatDate } from "../../lib/utils";
 import { ConfirmDialog } from "../shared/ConfirmDialog";
 
@@ -12,7 +12,7 @@ export function TaskItem({
   onToggleActive,
   onToggleRecurring,
 }: {
-  item: Item;
+  item: Task;
   onToggle: () => void;
   onDelete: () => void;
   onToggleActive?: () => void;

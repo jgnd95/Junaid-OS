@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useDraggable } from "@dnd-kit/core";
-import type { Goal, Item } from "../../types";
+import type { Goal, Task } from "../../types";
 import { formatDate } from "../../lib/utils";
 import { TaskList } from "./tasks/TaskList";
 import { ConfirmDialog } from "../shared/ConfirmDialog";
@@ -23,7 +23,7 @@ export function GoalRow({
   goal: Goal;
   categoryName: string | null;
   taskStats?: { total: number; completed: number } | null;
-  linkedTasks?: Item[];
+  linkedTasks?: Task[];
   onToggle: () => void;
   onDelete: () => void;
   onToggleTask?: (id: string) => void;

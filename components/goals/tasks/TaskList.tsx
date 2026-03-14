@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import type { Item } from "../../../types";
+import type { Task } from "../../../types";
 import { TaskItem } from "../../tasks/TaskItem";
 
 export function TaskList({
@@ -14,7 +14,7 @@ export function TaskList({
   addingTask,
   setAddingTask,
 }: {
-  linkedTasks: Item[];
+  linkedTasks: Task[];
   onToggleTask: (id: string) => void;
   onDeleteTask: (id: string) => void;
   onToggleActiveTask?: (id: string) => void;

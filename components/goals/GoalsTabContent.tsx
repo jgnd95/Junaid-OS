@@ -11,7 +11,7 @@ import {
   type DragEndEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
-import type { Goal, Category, Item } from "../../types";
+import type { Goal, Category, Task } from "../../types";
 import { UNCAT_KEY } from "../../lib/constants";
 import { GoalRow } from "./GoalRow";
 import { GoalInputBar } from "./GoalInputBar";
@@ -39,7 +39,7 @@ export function GoalsTabContent({
   onToggleRecurringTask,
 }: {
   goals: Goal[];
-  tasks: Item[];
+  tasks: Task[];
   categories: Category[];
   onAddGoal: (title: string, categoryId: string | null) => void;
   onToggleGoal: (id: string) => void;
@@ -119,7 +119,7 @@ export function GoalsTabContent({
 
   // Task stats per goal
   const taskStatsByGoal = new Map<string, { total: number; completed: number }>();
-  const tasksByGoal = new Map<string, Item[]>();
+  const tasksByGoal = new Map<string, Task[]>();
   for (const task of tasks) {
     if (!task.goalId) continue;
     const stats = taskStatsByGoal.get(task.goalId) ?? { total: 0, completed: 0 };
