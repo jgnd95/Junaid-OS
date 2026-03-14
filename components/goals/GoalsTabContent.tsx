@@ -57,7 +57,17 @@ export function GoalsTabContent({
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [showCategorySheet, setShowCategorySheet] = useState(false);
   const [dragGoalId, setDragGoalId] = useState<string | null>(null);
+  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
   const titleRef = useRef<HTMLInputElement>(null);
+
+  function toggleSection(key: string) {
+    setCollapsedSections((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }
 
   const sensors = useSensors(
     useSensor(MouseSensor),
@@ -180,9 +190,16 @@ export function GoalsTabContent({
                       transition: "background 0.15s, border-color 0.15s",
                     }}
                   >
-                    {showHeader && <CategoryHeader label={label} dim={dim} />}
+                    {showHeader && (
+                      <CategoryHeader
+                        label={label}
+                        dim={dim}
+                        expanded={!collapsedSections.has(key)}
+                        onToggle={() => toggleSection(key)}
+                      />
+                    )}
 
-                    {catGoals.length === 0 ? (
+                    {collapsedSections.has(key) ? null : catGoals.length === 0 ? (
                       <p style={{
                         padding: "8px 20px 16px",
                         fontSize: "12px",
