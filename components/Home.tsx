@@ -255,6 +255,8 @@ export default function Home() {
               onRenameCategory={handleRenameCategory}
               onReorderCategories={handleReorderCategories}
               onReassignGoal={handleReassignGoal}
+              onToggleTask={(id) => handleToggle("tasks", id)}
+              onDeleteTask={(id) => handleDelete("tasks", id)}
             />
           )}
           {mounted && activeTab !== "goals" && (

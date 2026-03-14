@@ -36,6 +36,8 @@ export function GoalsTabContent({
   onRenameCategory,
   onReorderCategories,
   onReassignGoal,
+  onToggleTask,
+  onDeleteTask,
 }: {
   goals: Goal[];
   tasks: Item[];
@@ -48,6 +50,8 @@ export function GoalsTabContent({
   onRenameCategory: (id: string, newName: string) => void;
   onReorderCategories: (newOrder: Category[]) => void;
   onReassignGoal: (goalId: string, categoryId: string | null) => void;
+  onToggleTask: (id: string) => void;
+  onDeleteTask: (id: string) => void;
 }) {
   const [titleInput, setTitleInput] = useState("");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
@@ -105,14 +109,18 @@ export function GoalsTabContent({
     { key: UNCAT_KEY, label: "Uncategorized", catId: null as string | null, dim: true },
   ];
 
-  // Build task stats per goal: { total, completed }
+  // Build task stats and linked tasks per goal
   const taskStatsByGoal = new Map<string, { total: number; completed: number }>();
+  const tasksByGoal = new Map<string, Item[]>();
   for (const task of tasks) {
     if (!task.goalId) continue;
     const stats = taskStatsByGoal.get(task.goalId) ?? { total: 0, completed: 0 };
     stats.total++;
     if (task.completed) stats.completed++;
     taskStatsByGoal.set(task.goalId, stats);
+    const list = tasksByGoal.get(task.goalId) ?? [];
+    list.push(task);
+    tasksByGoal.set(task.goalId, list);
   }
 
   const draggedGoal = dragGoalId ? goals.find((g) => g.id === dragGoalId) : null;
@@ -293,8 +301,11 @@ export function GoalsTabContent({
                     goal={goal}
                     categoryName={null}
                     taskStats={taskStatsByGoal.get(goal.id) ?? null}
+                    linkedTasks={tasksByGoal.get(goal.id)}
                     onToggle={() => onToggleGoal(goal.id)}
                     onDelete={() => onDeleteGoal(goal.id)}
+                    onToggleTask={onToggleTask}
+                    onDeleteTask={onDeleteTask}
                   />
                 ))
               );
@@ -337,8 +348,11 @@ export function GoalsTabContent({
                           goal={goal}
                           categoryName={null}
                           taskStats={taskStatsByGoal.get(goal.id) ?? null}
+                          linkedTasks={tasksByGoal.get(goal.id)}
                           onToggle={() => onToggleGoal(goal.id)}
                           onDelete={() => onDeleteGoal(goal.id)}
+                          onToggleTask={onToggleTask}
+                          onDeleteTask={onDeleteTask}
                         />
                       ))
                     )}
@@ -358,8 +372,11 @@ export function GoalsTabContent({
                   goal={goal}
                   categoryName={goal.categoryId ? categoryMap.get(goal.categoryId)?.name ?? null : null}
                   taskStats={taskStatsByGoal.get(goal.id) ?? null}
+                  linkedTasks={tasksByGoal.get(goal.id)}
                   onToggle={() => onToggleGoal(goal.id)}
                   onDelete={() => onDeleteGoal(goal.id)}
+                  onToggleTask={onToggleTask}
+                  onDeleteTask={onDeleteTask}
                 />
               ))}
             </div>
